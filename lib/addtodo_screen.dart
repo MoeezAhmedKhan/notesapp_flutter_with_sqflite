@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:todoapp/db_handler.dart';
 import 'package:todoapp/model/todo_model.dart';
+import 'package:todoapp/todo_scree.dart';
 
 class AddTodoScreen extends StatefulWidget {
   AddTodoScreen({super.key});
@@ -21,7 +22,17 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
     final mq = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TodoScreen(),
+                  ));
+            },
+            icon: Icon(Icons.arrow_back_outlined)),
+      ),
       body: Padding(
         padding: EdgeInsets.only(
             top: mq.height * 0.04,
@@ -82,11 +93,14 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                             e.description == note.description,
                       );
                       if (isInserted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Note added successfully')));
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('Note added successfully'),
+                          duration: Duration(seconds: 1),
+                        ));
                         widget.titleController.clear();
                         widget.descriptionController.clear();
+                        setState(() {});
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

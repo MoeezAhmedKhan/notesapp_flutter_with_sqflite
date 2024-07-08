@@ -17,6 +17,7 @@ class TodoScreen extends StatefulWidget {
 }
 
 class _TodoScreenState extends State<TodoScreen> {
+
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
@@ -225,68 +226,86 @@ class _TodoScreenState extends State<TodoScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.black.withAlpha(200),
-          title:
-              const Text("Update Note", style: TextStyle(color: Colors.orange)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: widget.updateTitleController,
-                maxLines: 2,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Enter title",
-                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 18),
-                  enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange)),
-                  focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue)),
+        return Form(
+          key: widget._key,
+          child: AlertDialog(
+            backgroundColor: Colors.black.withAlpha(200),
+            title: const Text("Update Note",
+                style: TextStyle(color: Colors.orange)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: widget.updateTitleController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Enter title";
+                    }
+                    return null;
+                  },
+                  maxLines: 2,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: "Enter title",
+                    hintStyle: TextStyle(color: Colors.grey[500], fontSize: 18),
+                    enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.orange)),
+                    focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue)),
+                  ),
                 ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: widget.updateDescriptionController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Enter description";
+                    }
+                    return null;
+                  },
+                  maxLines: 4,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: "Enter desciption",
+                    hintStyle: TextStyle(color: Colors.grey[500], fontSize: 18),
+                    enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.orange)),
+                    focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue)),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: const Text(
+                  'CANCEL',
+                  style: TextStyle(color: Colors.orange),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: widget.updateDescriptionController,
-                maxLines: 4,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Enter desciption",
-                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 18),
-                  enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange)),
-                  focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue)),
+              TextButton(
+                child: const Text(
+                  'SUBMIT',
+                  style: TextStyle(color: Colors.orange),
                 ),
+                onPressed: () async {
+                  if (widget._key.currentState!.validate()) {
+                    todoModel.title = widget.updateTitleController.text;
+                    todoModel.description =
+                        widget.updateDescriptionController.text;
+                    await DBHandler().update(todoModel.toMap());
+                    setState(() {
+                      print("Updating!!!!!!!!!!!!!!!!!!!!!!! widget building");
+                      Navigator.of(context).pop();
+                    });
+                  }
+                },
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              child: const Text(
-                'CANCEL',
-                style: TextStyle(color: Colors.orange),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                'SUBMIT',
-                style: TextStyle(color: Colors.orange),
-              ),
-              onPressed: () async {
-                todoModel.title = widget.updateTitleController.text;
-                todoModel.description = widget.updateDescriptionController.text;
-                await DBHandler().update(todoModel.toMap());
-                setState(() {
-                  print("Updating!!!!!!!!!!!!!!!!!!!!!!! widget building");
-                  Navigator.of(context).pop();
-                });
-              },
-            ),
-          ],
         );
       },
     );
@@ -318,7 +337,7 @@ class _FloatingButtonState extends State<FloatingButton> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         onPressed: () {
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => AddTodoScreen(),
